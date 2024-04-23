@@ -1,0 +1,120 @@
+﻿@page
+@using BookRec.Infrastructure.EntityFramework.Models
+@model IndexModel
+@{
+    ViewData["Title"] = "Recommendation";
+    ViewData["IsRecommendation"] = true;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h5>Welcome to BookRec, the best book recommendation system.</h5>
+    <h5>You can manage your previous books using <a clas="btn-link btn" asp-area="Book" asp-page="/Index">My Books</a>.</h5>
+    <br />
+    <h5>Please choose the filtering you want to apply</h5>
+    <div class="row text-center">
+        <div class="col-sm-4 col-12">
+            <form asp-page="Index" method="post" asp-page-handler="FindCBFRecommendation" class="recommender-form">
+                <button class="btn btn-primary" type="submit" onclick="toggleLoading()">Content-Based Filtering</button>
+            </form>
+        </div>
+        <div class="col-sm-4 col-12">
+            <form asp-page="Index" method="post" asp-page-handler="FindCFRecommendation" class="recommender-form">
+                <button class="btn btn-primary" type="submit" onclick="toggleLoading()">Collaborative Filtering</button>
+            </form>
+        </div>
+        <div class="col-sm-4 col-12">
+            <form asp-page="Index" method="post" asp-page-handler="FindHFRecommendation" class="recommender-form">
+                <button class="btn btn-primary" type="submit" onclick="toggleLoading()">Hybrid Filtering</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="text-center" id="loading">
+    <br /><br />
+    <img src="~/img/loading.gif" width="80" />
+</div>
+
+@if (Model.Predictions != null && Model.Predictions.Any())
+{
+    <br />
+    <h2>We recommend:</h2>
+    <hr class="hr-light" />
+    <div class="row">
+        @foreach (var predication in Model.Predictions)
+        {
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="product-grid">
+                    <div class="product-image">
+                        @if (string.IsNullOrEmpty(predication.Book.ImageLink))
+                        {
+                            <img src="~/img/no_image.png" alt="@predication.Book.Title" title="@predication.Book.Title">
+                        }
+                        else
+                        {
+                            <img src="@predication.Book.ImageLink" alt="@predication.Book.Title" title="@predication.Book.Title">
+                        }
+                        <span class="product-new-label">Score @predication.Score</span>
+                    </div>
+                    <div class="product-content bg-primary">
+                        <a href="@predication.Book.PreviewLink" target="_blank" class="preview-link">
+                            <p class="title">@predication.Book.Title</p>
+                        </a>
+                        <table class="text-left table table-borderless">
+                            <tr>
+                                <td>Category</td>
+                                <td>@predication.Book.Categories</td>
+                            </tr>
+                            <tr>
+                                <td>Language</td>
+                                <td>@(predication.Book.LanguageCode == "en" ? "English" : "German")</td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td> @(predication.Book.Country == "DE" ? "Germany" : "Britin")</td>
+                            </tr>
+                            <tr>
+                                <td>Mature Rating</td>
+                                <td>@predication.Book.MaturityRating.Replace("_", " ")</td>
+                            </tr>
+                            <tr>
+                                <td>Author</td>
+                                <td>@predication.Book.Authors</td>
+                            </tr>
+                            <tr>
+                                <td>Publisher</td>
+                                <td>@predication.Book.Publisher</td>
+                            </tr>
+                            <tr>
+                                <td>Publish date</td>
+                                <td>@predication.Book.PublishedDate.Date.ToString("dd.MM.yyyy")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center" id="no-recommendation">
+        <br /><br />
+        <p>There are no recommendations</p>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#loading').hide();
+            $('#no-recommendation').show();
+        });
+
+        function toggleLoading() {
+            $('#loading').show();
+            $('#no-recommendation').hide();
+        }
+    </script>
+}

@@ -1,0 +1,159 @@
+﻿@page
+@model BookRec.App.Areas.Book.Pages.IndexModel
+@{
+    ViewData["Title"] = "My books";
+    ViewData["IsRecommendation"] = false;
+}
+
+
+<div class="row justify-content-md-center">
+    <div class="col-6">
+        <h5>Search for books</h5>
+        <form class="ui-widget input-group">
+            <input class="form-control" type="text" autocomplete="off" id="book-autocomplete" placeholder="Search books..." aria-label="Search">
+            <button class="btn" type="button" id="book-clear">
+                <i class="fa fa-times"></i>
+            </button>
+            <button class="btn" type="button" id="book-spinner">
+                <img src="~/img/loading.gif" alt="loading" title="loading" />
+            </button>
+        </form>
+    </div>
+</div>
+<br />
+<br />
+
+<h1>My books</h1>
+<hr />
+@if (Model.UserBooks != null && Model.UserBooks.Any())
+{
+    <div class="row">
+        @foreach (var userBook in Model.UserBooks)
+        {
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="product-grid">
+                    <div class="product-image">
+                        @if (string.IsNullOrEmpty(userBook.Book.ImageLink))
+                        {
+                            <img src="~/img/no_image.png" alt="@userBook.Book.Title" title="@userBook.Book.Title">
+                        }
+                        else
+                        {
+                            <img src="@userBook.Book.ImageLink" alt="@userBook.Book.Title" title="@userBook.Book.Title">
+                        }
+                        <span class="product-new-label delete"><i class="fa fa-times" data-id="@userBook.Id" onclick="deleteBook(this)"></i></span>
+                    </div>
+                    <div class="product-content bg-primary">
+                        <a href="@userBook.Book.PreviewLink" target="_blank" class="preview-link">
+                            <p class="title">@userBook.Book.Title</p>
+                        </a>
+                        <table class="text-left table table-borderless">
+                            <tr>
+                                <td>Category</td>
+                                <td>@userBook.Book.Categories</td>
+                            </tr>
+                            <tr>
+                                <td>Language</td>
+                                <td>@(userBook.Book.LanguageCode == "en" ? "English" : "German")</td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td> @(userBook.Book.Country == "DE" ? "Germany" : "Britin")</td>
+                            </tr>
+                            <tr>
+                                <td>Mature Rating</td>
+                                <td>@userBook.Book.MaturityRating.Replace("_", " ")</td>
+                            </tr>
+                            <tr>
+                                <td>Author</td>
+                                <td>@userBook.Book.Authors</td>
+                            </tr>
+                            <tr>
+                                <td>Publisher</td>
+                                <td>@userBook.Book.Publisher</td>
+                            </tr>
+                            <tr>
+                                <td>Publish date</td>
+                                <td>@userBook.Book.PublishedDate.Date.ToString("dd.MM.yyyy")</td>
+                            </tr>
+                        </table>
+                        <ul class="rating">
+                            <li class="fa fa-star @(userBook.Rating >= 1 ? "" : "disable")" data-id="@userBook.Id" onclick="updateRating(this, 1)"></li>
+                            <li class="fa fa-star @(userBook.Rating >= 2 ? "" : "disable")" data-id="@userBook.Id" onclick="updateRating(this, 2)"></li>
+                            <li class="fa fa-star @(userBook.Rating >= 3 ? "" : "disable")" data-id="@userBook.Id" onclick="updateRating(this, 3)"></li>
+                            <li class="fa fa-star @(userBook.Rating >= 4 ? "" : "disable")" data-id="@userBook.Id" onclick="updateRating(this, 4)"></li>
+                            <li class="fa fa-star @(userBook.Rating >= 5 ? "" : "disable")" data-id="@userBook.Id" onclick="updateRating(this, 5)"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+}
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            var url = '@Url.Page("index", "filter")';
+            $("#book-clear").show();
+            $("#book-spinner").hide();
+
+            $("input#book-autocomplete").autocomplete({
+                source: function (query, process) {
+                    get(url, query, process);
+                },
+                select: function (event, ui) {
+                    $("#book-autocomplete").val(ui.item.text);
+                    addBookToUser(ui.item.value);
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append(`<div class="ui-menu-item-wrapper">${item.text}</div>`)
+                    .appendTo(ul);
+            };
+            $('#book-clear').click(function () {
+                $("input#book-autocomplete").val('').focus();
+            });
+
+            function get(url, query, process) {
+                if (query.term && query.term.length >= 2) {
+                    $("#book-clear").hide();
+                    $("#book-spinner").show();
+                    $.getJSON(url, { value: query.term }, function (response) {
+                        $("#book-spinner").hide();
+                        $("#book-clear").show();
+                        process(response);
+                    });
+                }
+            }
+
+            function addBookToUser(id) {
+                $.get(`/book/index?handler=add&id=${id}`, function (data) {
+                    window.location.reload();
+                });
+            }
+
+        });
+
+        function updateRating(self, stars) {
+            var id = $(self).data("id");
+            $.get(`/book/index?handler=rating&id=${id}&stars=${stars}`, function (data) {
+                window.location.reload();
+            });
+            }
+
+        function deleteBook(self) {
+            if (confirm("Are you sure you want to delete this book from your library")) {
+                var id = $(self).data("id");
+                $.get(`/book/index?handler=delete&id=${id}`, function (data) {
+                    window.location.reload();
+                });
+
+            }
+        }
+    </script>
+}

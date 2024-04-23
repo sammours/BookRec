@@ -1,0 +1,92 @@
+﻿@page
+@using ChartJSCore.Models;
+@using ChartJSCore.Helpers;
+@model BookRec.App.Areas.Charts.Pages.IndexModel
+@{
+    ViewData["Title"] = "Charts";
+
+    var dataset = new LineDataset()
+    {
+        Label = Model.Title,
+        Data = Model.Charts.Select(x => x.Value).ToList(),
+        Fill = "false",
+        LineTension = 0.1,
+        BackgroundColor = ChartColor.FromRgba(75, 192, 192, 0.4),
+        BorderColor = ChartColor.FromRgb(75, 192, 192),
+        BorderCapStyle = "butt",
+        BorderDash = new List<int> { },
+        BorderDashOffset = 0.0,
+        BorderJoinStyle = "miter",
+        PointBorderColor = new List<ChartColor> { ChartColor.FromRgb(75, 192, 192) },
+        PointBackgroundColor = new List<ChartColor> { ChartColor.FromHexString("#ffffff") },
+        PointBorderWidth = new List<int> { 1 },
+        PointHoverRadius = new List<int> { 5 },
+        PointHoverBackgroundColor = new List<ChartColor> { ChartColor.FromRgb(75, 192, 192) },
+        PointHoverBorderColor = new List<ChartColor> { ChartColor.FromRgb(255, 255, 255) },
+        PointHoverBorderWidth = new List<int> { 2 },
+        PointRadius = new List<int> { 1 },
+        PointHitRadius = new List<int> { 10 },
+        SpanGaps = false
+    };
+
+
+    var chart = new Chart()
+    {
+        Type = Enums.ChartType.Line,
+        Data = new Data()
+        {
+            Labels = Model.Charts.Select(x => x.Label).ToList(),
+            Datasets = new List<Dataset>
+    {
+                dataset
+            }
+        }
+    };
+}
+
+<div class="row">
+    <div class="col-6 offset-3">
+        <h5 class="form-inline justify-content-center">Choose statistic</h5>
+        <form method="post" class="form-inline chart-form justify-content-center">
+            <div class="form-group">
+                <select class="form-control" name="type" id="type">
+                    <option value="1">Average Score</option>
+                    <option value="2">Execution Time</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" onclick="toggleLoading()">Illustrate</button>
+            </div>
+        </form>
+    </div>
+</div>
+<hr class="hr-light" />
+
+<div class="text-center" id="loading">
+    <br /><br />
+    <img src="~/img/loading.gif" width="80" />
+</div>
+
+@if (Model.Charts != null && Model.Charts.Any())
+{
+    <div class="row">
+        <div class="col-sm-6 offset-3">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
+}
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#loading').hide();
+        });
+
+        function toggleLoading() {
+            $('#loading').show();
+        }
+        @Html.Raw(chart.CreateChartCode("lineChart"));
+    </script>
+}

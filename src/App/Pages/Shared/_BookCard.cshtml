@@ -1,0 +1,53 @@
+@using System.Linq
+@using BookRec.Infrastructure.EntityFramework.Models
+
+@model IEnumerable<UserBook>
+
+@{
+    var isRecommendation = (bool)@ViewData["IsRecommendation"];
+}
+
+
+
+<div class="card-columns">
+    @foreach (var userBook in Model)
+    {
+        <div class="card card-block">
+            @if (string.IsNullOrEmpty(userBook.Book.ImageLink))
+            {
+                <img class="card-img-top img-fluid" src="~/img/no_image.png" alt="@userBook.Book.Title" title="@userBook.Book.Title">
+            }
+            else
+            {
+                <img class="card-img-top img-fluid" src="@userBook.Book.ImageLink" alt="@userBook.Book.Title" title="@userBook.Book.Title">
+            }
+
+            @if (!isRecommendation)
+            {
+                <i class="fa fa-times delete-book-icon " data-id="@userBook.Book.Id" onclick="deleteBook(this)"></i>
+            }
+
+            <div class="card-body">
+                <h5 class="card-title">@userBook.Book.Title</h5>
+                <p class="card-text">@userBook.Book.Subtitle</p>
+                <p class="card-text">Category: <b>@userBook.Book.Categories</b></p>
+                <p class="card-text">Language: @userBook.Book.LanguageCode</p>
+                <p class="card-text">Author: @userBook.Book.Authors</p>
+            </div>
+
+            <div class="card-footer">
+                @if (!isRecommendation)
+                {
+                    <i class="rating fa fa-star @(userBook.Rating >= 1 ? "star-active" : "star-inactive")" data-id="@userBook.Book.Id" onclick="updateRating(this, 1)"></i>
+                    <i class="rating fa fa-star @(userBook.Rating >= 2 ? "star-active" : "star-inactive")" data-id="@userBook.Book.Id" onclick="updateRating(this, 2)"></i>
+                    <i class="rating fa fa-star @(userBook.Rating >= 3 ? "star-active" : "star-inactive")" data-id="@userBook.Book.Id" onclick="updateRating(this, 3)"></i>
+                    <i class="rating fa fa-star @(userBook.Rating >= 4 ? "star-active" : "star-inactive")" data-id="@userBook.Book.Id" onclick="updateRating(this, 4)"></i>
+                    <i class="rating fa fa-star @(userBook.Rating >= 5 ? "star-active" : "star-inactive")" data-id="@userBook.Book.Id" onclick="updateRating(this, 5)"></i>
+                }
+
+                <a href="@userBook.Book.PreviewLink" target="_blank" class="btn btn-link">Visit</a>
+            </div>
+        </div>
+    }
+</div>
+

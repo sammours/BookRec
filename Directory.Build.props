@@ -1,0 +1,35 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <Authors>BookRec</Authors>
+    <Description>Book Recommendation System</Description>
+    <Product>BookRec</Product>
+    <Copyright>Copyright 2019 (c) BookRec. All rights reserved.</Copyright>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors></WarningsAsErrors>
+    <CodeAnalysisRuleSet></CodeAnalysisRuleSet>
+    <UseSharedCompilation>true</UseSharedCompilation><!--roslyn build speed-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers" Version="3.0.0-beta4-final" /><!--c#8 roslyn -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0-beta4-final" /><!--c#8 roslyn -->
+    <PackageReference Include="EnsureThatCore" Version="1.0.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+  </PropertyGroup>
+</Project>
